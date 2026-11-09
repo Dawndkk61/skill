@@ -1,0 +1,4 @@
+interface:
+  display_name: "产品界面分析"
+  short_description: "从产品截图拆解页面、设计变量与组件，生成可追溯的独立 HTML 分析报告"
+  default_prompt: "使用 $product-ui-analysis 分析这批产品截图，整理页面、主题、设计变量与组件，并输出含证据的 HTML 报告。"

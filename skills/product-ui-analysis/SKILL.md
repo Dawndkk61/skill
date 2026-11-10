@@ -1,6 +1,6 @@
 ---
 name: product-ui-analysis
-description: Analyze product screenshots by product, surface, page and theme. Extract design-variable candidates and component evidence into self-contained HTML reports, including separate Workbench and IDE analyses for the same product. Use for screenshot-based analysis and report updates.
+description: Analyze full-screen product screenshots by page and theme. Extract design-variable candidates and screenshot evidence into self-contained HTML reports.
 ---
 
 # 产品界面分析
@@ -9,8 +9,10 @@ description: Analyze product screenshots by product, surface, page and theme. Ex
 
 ## 开始与分析
 
-- 先查看图片和现有报告，按实际内容建立页面分组。同页的主题、业务状态、账户、版本分开记录，不仅凭文件名配对；继续沿用用户确认过的限制状态。
-- 批次按产品子目录组织时，以目录作为产品匹配线索，核对已有报告后再归类。同一产品的「工作台」与「IDE」分别建清单、主题变量、组件证据和简短结论。若有产品入口，沿用一张产品卡，提供各已采集分类的报告链接。只有 IDE 证据的产品仅标为「IDE」。详见[分类分析](references/surface-analysis.md)。
+- 新分析以单个显示器未裁剪、未缩放的全屏原图为输入。提示词已声明使用全屏原图时直接沿用。窗口截图、局部裁切、单独的组件截图和拼接图请换为全屏原图。混合批次先处理符合条件的截图，并说明哪些素材需要替换。整页报告可从已接受的全屏原图裁取组件作为证据。
+- 首次分析一个截图批次时，确认截图所用屏幕的系统逻辑工作区尺寸（宽 × 高，Mac 上填写「看起来像」的尺寸）。缺少尺寸时集中询问一次，用户确认不清楚时用原图像素继续。沿用已确认的同一显示条件，换屏或系统显示比例变化时分别记录。
+- 从文件读取截图实际像素尺寸。物理分辨率只有在确认为系统逻辑工作区尺寸时才用于标定。相同宽高比本身不足以证明截图覆盖了同一逻辑工作区。
+- 按截图实际内容识别产品、页面、主题和状态。多产品可用子目录辅助识别。工作台与 IDE 仅在素材或任务明确区分时分别报告，产品分类无需用户填写。详见[分类分析](references/surface-analysis.md)。
 - 用户提供截图时以截图为证据，只有需要且已获授权时才操作真实应用。没有操作记录的截图不写成 Accessibility / DOM 实测或已验证交互。
 - 记录原文件、尺寸、哈希、页面、主题、可见状态。保留原图，处理副本记录色彩空间转换，裁切使用原图坐标。取样可用 `scripts/sample_png.py`，支持范围见其 `--help`。
 - 每条结论区分观察事实、像素取样、几何估算、配置明示、设计推断、未知。仅在用户确认截图工作区标准且源图可等比映射时换算几何和误差。已确认使用 **2560×1440** 标准的批次中，完整 5120×2880 图按 2× 换算，30 image-px ±5 得到 15 标准 px ±2.5。保留原值、原图坐标和采样区域。设置中直接显示的字号沿用配置值。映射不足时保留图像像素。
@@ -49,13 +51,13 @@ python3 scripts/component_variables.py report.html --output report.html
 python3 scripts/validate_analysis.py analysis.json --report report.html
 ```
 
-当前工作流先在分析 JSON 中记录用户确认的标准，再生成或更新报告：
+先在分析 JSON 中记录用户确认的标准，再用该批次的宽高运行标定。例如：
 
 ```bash
 python3 scripts/calibrate_analysis.py analysis.json --width 2560 --height 1440 --output analysis.json --report report.html --report-output report.html
 ```
 
-首次生成时省略 `--report` 与 `--report-output`，再执行构建器。派生值写入 `standard` / `standardBounds`，原始 `value` / `bounds` 不改写，重复执行不会再次除以 2。像 Devin 首页 5120×2820 这类已确认全宽但高度不足的截图，核实后使用 `--allow-full-width-partial-height`：按 2× 得到 2560×1410，不拉伸到 1440；坐标仍相对于截图自身。详细格式见数据格式中的“截图工作区标定”。
+首次生成时省略 `--report` 与 `--report-output`，再执行构建器。派生值写入 `standard` / `standardBounds`，原始 `value` / `bounds` 不改写，重复执行不会再次除以 2。仅维护已标定的历史报告时，可对 Devin 首页 5120×2820 这类已核实全宽但高度不足的旧截图使用 `--allow-full-width-partial-height`：按 2× 得到 2560×1410，不拉伸到 1440；坐标仍相对于截图自身。详细格式见数据格式中的“截图工作区标定”。
 
 ## 交付前
 
